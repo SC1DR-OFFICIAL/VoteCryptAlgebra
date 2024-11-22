@@ -2,6 +2,8 @@
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.forms import UserCreationForm
 from .models import Election, Candidate, Vote
 from .forms import VoteForm, ElectionForm, CandidateForm
 from .crypto import HomomorphicEncryption
@@ -13,6 +15,13 @@ HE = HomomorphicEncryption()
 def is_admin(user):
     """Функция проверки, является ли пользователь администратором."""
     return user.is_staff
+
+@login_required
+def home(request):
+    """Представление для главной страницы, отображающее список всех выборов."""
+    # Получаем текущие и будущие выборы (опционально, можно фильтровать по дате)
+    elections = Election.objects.filter(end_date__gte=timezone.now()).order_by('start_date')
+    return render(request, 'voting/home.html', {'elections': elections})
 
 @login_required
 def vote(request, election_id):
@@ -105,3 +114,18 @@ def results(request, election_id):
         decrypted_results[candidate.name] = decrypted_sum
 
     return render(request, 'voting/results.html', {'election': election, 'total_votes': decrypted_results})
+
+def register(request):
+    """Представление для регистрации новых пользователей."""
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            username = form.cleaned_data.get('username')
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=raw_password)
+            login(request, user)
+            return redirect('voting:home')
+    else:
+        form = UserCreationForm()
+    return render(request, 'voting/register.html', {'form': form})

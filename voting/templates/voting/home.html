@@ -1,0 +1,22 @@
+<!-- voting/templates/voting/home.html -->
+
+{% extends 'voting/base.html' %}
+
+{% block title %}Главная страница - Голосования{% endblock %}
+
+{% block content %}
+    <h1>Доступные Голосования</h1>
+    {% if elections %}
+        {% for election in elections %}
+            <div class="election">
+                <h2>{{ election.name }}</h2>
+                <p>{{ election.description }}</p>
+                <p><strong>Начало:</strong> {{ election.start_date }}</p>
+                <p><strong>Окончание:</strong> {{ election.end_date }}</p>
+                <a href="{% url 'voting:vote' election.id %}" class="vote-button">Проголосовать</a>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>Нет доступных голосований в данный момент.</p>
+    {% endif %}
+{% endblock %}
