@@ -1,0 +1,21 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h1>Результаты: {{ election.name }}</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Кандидат</th>
+        <th>Количество голосов</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for candidate, votes in total_votes.items %}
+        <tr>
+          <td>{{ candidate }}</td>
+          <td>{{ votes }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

@@ -1,7 +1,6 @@
-# voting/models.py
-
 from django.db import models
 from django.contrib.auth.models import User
+
 
 class Election(models.Model):
     name = models.CharField(max_length=255, verbose_name="Название выборов")
@@ -12,6 +11,7 @@ class Election(models.Model):
     def __str__(self):
         return self.name
 
+
 class Candidate(models.Model):
     election = models.ForeignKey(Election, on_delete=models.CASCADE, related_name='candidates', verbose_name="Выборы")
     name = models.CharField(max_length=255, verbose_name="Имя кандидата")
@@ -19,6 +19,7 @@ class Candidate(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Vote(models.Model):
     election = models.ForeignKey(Election, on_delete=models.CASCADE, verbose_name="Выборы")

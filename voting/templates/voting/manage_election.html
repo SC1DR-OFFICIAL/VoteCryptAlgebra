@@ -1,0 +1,21 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h1>Управление выборами: {{ election.name }}</h1>
+  
+  <h2>Кандидаты</h2>
+  <ul>
+    {% for candidate in candidates %}
+      <li>{{ candidate.name }} - {{ candidate.description }}</li>
+    {% empty %}
+      <li>Нет кандидатов.</li>
+    {% endfor %}
+  </ul>
+  
+  <h2>Добавить кандидата</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Добавить кандидата</button>
+  </form>
+{% endblock %}
