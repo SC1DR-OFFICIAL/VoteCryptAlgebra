@@ -1,6 +1,10 @@
-{% extends "base_generic.html" %}
+<!-- voting/templates/voting/voting_not_started.html -->
+
+{% extends 'voting/base.html' %}
+
+{% block title %}Голосование не началось{% endblock %}
 
 {% block content %}
-  <h1>Голосование еще не началось</h1>
-  <p>Голосование начнется {{ election.start_date }}.</p>
+    <h2>Голосование еще не началось</h2>
+    <p>Это голосование начнется {{election.start_date }}.</p>
 {% endblock %}

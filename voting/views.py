@@ -12,9 +12,11 @@ from django.utils import timezone
 # Инициализация модуля гомоморфного шифрования
 HE = HomomorphicEncryption()
 
+
 def is_admin(user):
     """Функция проверки, является ли пользователь администратором."""
     return user.is_staff
+
 
 @login_required
 def home(request):
@@ -22,6 +24,7 @@ def home(request):
     # Получаем текущие и будущие выборы (опционально, можно фильтровать по дате)
     elections = Election.objects.filter(end_date__gte=timezone.now()).order_by('start_date')
     return render(request, 'voting/home.html', {'elections': elections})
+
 
 @login_required
 def vote(request, election_id):
@@ -36,13 +39,14 @@ def vote(request, election_id):
     if timezone.now() > election.end_date:
         return render(request, 'voting/voting_ended.html', {'election': election})
 
+    # Проверка, голосовал ли пользователь ранее
+    if Vote.objects.filter(election=election, voter=request.user).exists():
+        return render(request, 'voting/already_voted.html', {'election': election})
+
     if request.method == 'POST':
         form = VoteForm(request.POST, election=election)
         if form.is_valid():
             candidate = form.cleaned_data['candidate']
-            # Проверка, голосовал ли пользователь ранее
-            if Vote.objects.filter(election=election, voter=request.user).exists():
-                return render(request, 'voting/already_voted.html', {'election': election})
             # Шифрование голоса
             encrypted_vote = HE.encrypt_vote(candidate.id)
             # Сохранение зашифрованного голоса
@@ -58,6 +62,7 @@ def vote(request, election_id):
 
     return render(request, 'voting/vote.html', {'form': form, 'election': election})
 
+
 @login_required
 @user_passes_test(is_admin)
 def create_election(request):
@@ -70,6 +75,7 @@ def create_election(request):
     else:
         form = ElectionForm()
     return render(request, 'voting/create_election.html', {'form': form})
+
 
 @login_required
 @user_passes_test(is_admin)
@@ -94,6 +100,7 @@ def manage_election(request, election_id):
         'form': form
     })
 
+
 @login_required
 @user_passes_test(is_admin)
 def results(request, election_id):
@@ -114,6 +121,7 @@ def results(request, election_id):
         decrypted_results[candidate.name] = decrypted_sum
 
     return render(request, 'voting/results.html', {'election': election, 'total_votes': decrypted_results})
+
 
 def register(request):
     """Представление для регистрации новых пользователей."""

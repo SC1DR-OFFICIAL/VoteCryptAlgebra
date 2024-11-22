@@ -1,6 +1,11 @@
-{% extends "base_generic.html" %}
+<!-- voting/templates/voting/vote_success.html -->
+
+{% extends 'voting/base.html' %}
+
+{% block title %}Голос успешно отдан{% endblock %}
 
 {% block content %}
-  <h1>Спасибо за ваш голос!</h1>
-  <p>Ваш голос был успешно зашифрован и сохранен.</p>
+    <h2>Ваш голос успешно отдан!</h2>
+    <p>Спасибо за участие в голосовании.</p>
+    <p><a href="{% url 'voting:home' %}">Вернуться на главную страницу</a></p>
 {% endblock %}

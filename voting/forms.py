@@ -3,6 +3,7 @@
 from django import forms
 from .models import Election, Candidate
 
+
 class VoteForm(forms.Form):
     election = forms.ModelChoiceField(
         queryset=Election.objects.all(),
@@ -23,6 +24,7 @@ class VoteForm(forms.Form):
             self.fields['candidate'].queryset = election.candidates.all()
             self.fields['election'].initial = election
 
+
 class ElectionForm(forms.ModelForm):
     class Meta:
         model = Election
@@ -31,6 +33,7 @@ class ElectionForm(forms.ModelForm):
             'start_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'end_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
         }
+
 
 class CandidateForm(forms.ModelForm):
     class Meta:

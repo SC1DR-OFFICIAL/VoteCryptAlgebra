@@ -1,6 +1,10 @@
-{% extends "base_generic.html" %}
+<!-- voting/templates/voting/already_voted.html -->
+
+{% extends 'voting/base.html' %}
+
+{% block title %}Вы уже голосовали{% endblock %}
 
 {% block content %}
-  <h1>Вы уже проголосовали</h1>
-  <p>Извините, но вы уже приняли участие в этом голосовании.</p>
+    <h2>Вы уже голосовали</h2>
+    <p>Вы уже проголосовали за этого кандидата в данном голосовании.</p>
 {% endblock %}

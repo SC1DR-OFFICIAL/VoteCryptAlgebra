@@ -1,10 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<!-- voting/templates/voting/voting_ended.html -->
 
-</body>
-</html>
+{% extends 'voting/base.html' %}
+
+{% block title %}Голосование завершено{% endblock %}
+
+{% block content %}
+    <h2>Голосование завершено</h2>
+    <p>Это голосование завершилось {{ election.end_date }}.</p>
+{% endblock %}

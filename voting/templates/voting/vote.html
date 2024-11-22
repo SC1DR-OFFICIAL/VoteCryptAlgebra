@@ -1,10 +1,15 @@
-{% extends "base_generic.html" %}
+<!-- voting/templates/voting/vote.html -->
+
+{% extends 'voting/base.html' %}
+
+{% block title %}Голосование - {{ election.name }}{% endblock %}
 
 {% block content %}
-  <h1>Голосование: {{ election.name }}</h1>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Голосовать</button>
-  </form>
+    <h2>Голосование: {{ election.name }}</h2>
+    <p>{{ election.description }}</p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="logout-button" style="background-color: #28a745;">Проголосовать</button>
+    </form>
 {% endblock %}
