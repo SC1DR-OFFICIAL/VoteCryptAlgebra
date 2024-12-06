@@ -39,14 +39,15 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',  # Обязательно
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 
 ROOT_URLCONF = "VoteCryptAlgebra.urls"
 
@@ -126,7 +127,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # URL для перенаправления при необходимости входа
 LOGIN_URL = '/login/'
 
-LOGOUT_REDIRECT_URL = 'voting:home'  # Перенаправление на главную страницу после выхода
+LOGOUT_REDIRECT_URL = 'login'  # Перенаправление на главную страницу после выхода
 
 # URL перенаправления после входа
 LOGIN_REDIRECT_URL = 'voting:home'

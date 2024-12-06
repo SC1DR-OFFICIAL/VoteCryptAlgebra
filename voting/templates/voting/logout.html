@@ -5,8 +5,8 @@
 {% block title %}Выход{% endblock %}
 
 {% block content %}
-    <div class="message">
-        <h2>Вы успешно вышли из системы.</h2>
-        <p><a href="{% url 'voting:home' %}">Вернуться на главную страницу</a></p>
+    <div class="alert alert-info" role="alert">
+        Вы успешно вышли из системы.
     </div>
+    <a href="{% url 'login' %}" class="btn btn-success">Войти снова</a>
 {% endblock %}

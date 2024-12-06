@@ -5,11 +5,10 @@
 {% block title %}Вход{% endblock %}
 
 {% block content %}
-    <h2>Вход</h2>
+    <h2>Вход в систему</h2>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit" class="logout-button" style="background-color: #007bff;">Войти</button>
+        <button type="submit" class="btn btn-primary">Войти</button>
     </form>
-    <p>Нет аккаунта? <a href="{% url 'voting:register' %}">Зарегистрироваться</a></p>
 {% endblock %}

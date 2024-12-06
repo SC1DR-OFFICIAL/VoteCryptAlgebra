@@ -12,4 +12,5 @@ urlpatterns = [
     path('election/create/', views.create_election, name='create_election'),
     path('election/<int:election_id>/manage/', views.manage_election, name='manage_election'),
     path('register/', views.register, name='register'),  # Маршрут регистрации
+
 ]
