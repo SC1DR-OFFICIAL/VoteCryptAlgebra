@@ -3,14 +3,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import login, authenticate
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib import messages
 from .models import Election, Candidate, Vote
 from .forms import VoteForm, ElectionForm, CandidateForm
 from .crypto import HomomorphicEncryption
 from django.utils import timezone
-
-# Инициализация модуля гомоморфного шифрования
-HE = HomomorphicEncryption()
 
 
 def is_admin(user):
@@ -21,7 +18,6 @@ def is_admin(user):
 @login_required
 def home(request):
     """Представление для главной страницы, отображающее список всех выборов."""
-    # Получаем текущие и будущие выборы (опционально, можно фильтровать по дате)
     elections = Election.objects.filter(end_date__gte=timezone.now()).order_by('start_date')
     return render(request, 'voting/home.html', {'elections': elections})
 
@@ -33,30 +29,42 @@ def vote(request, election_id):
 
     # Проверка, начались ли выборы
     if timezone.now() < election.start_date:
-        return render(request, 'voting/voting_not_started.html', {'election': election})
+        messages.error(request, 'Голосование ещё не началось.')
+        return redirect('voting:home')
 
     # Проверка, завершились ли выборы
     if timezone.now() > election.end_date:
-        return render(request, 'voting/voting_ended.html', {'election': election})
+        messages.error(request, 'Голосование уже завершено.')
+        return redirect('voting:home')
 
     # Проверка, голосовал ли пользователь ранее
     if Vote.objects.filter(election=election, voter=request.user).exists():
-        return render(request, 'voting/already_voted.html', {'election': election})
+        messages.warning(request, 'Вы уже голосовали в этом голосовании.')
+        return redirect('voting:home')
 
     if request.method == 'POST':
         form = VoteForm(request.POST, election=election)
         if form.is_valid():
             candidate = form.cleaned_data['candidate']
-            # Шифрование голоса
-            encrypted_vote = HE.encrypt_vote(candidate.id)
+            HE = HomomorphicEncryption()  # Инициализация внутри функции
+            try:
+                encrypted_vote = HE.encrypt_vote(candidate.id)
+                serialized_vote = encrypted_vote.serialize()
+            except Exception as e:
+                messages.error(request, f'Ошибка при шифровании голоса: {e}')
+                return redirect('voting:vote', election_id=election.id)
+
             # Сохранение зашифрованного голоса
             Vote.objects.create(
                 election=election,
                 voter=request.user,
                 candidate=candidate,
-                encrypted_vote=encrypted_vote
+                encrypted_vote=serialized_vote
             )
-            return render(request, 'voting/vote_success.html', {'election': election})
+            messages.success(request, 'Ваш голос успешно отдан!')
+            return redirect('voting:home')
+        else:
+            messages.error(request, 'Произошла ошибка при отправке формы. Пожалуйста, попробуйте снова.')
     else:
         form = VoteForm(election=election)
 
@@ -109,16 +117,26 @@ def results(request, election_id):
 
     # Проверка, что голосование завершилось
     if timezone.now() < election.end_date:
-        return render(request, 'voting/results_not_available.html', {'election': election})
+        messages.error(request, 'Голосование ещё не завершено.')
+        return redirect('voting:home')
 
     # Получение всех зашифрованных голосов
     votes = Vote.objects.filter(election=election)
 
     # Создание словаря для хранения количества голосов по каждому кандидату
     decrypted_results = {}
+    HE = HomomorphicEncryption()  # Инициализация внутри функции
     for candidate in election.candidates.all():
-        decrypted_sum = votes.filter(candidate=candidate).count()
-        decrypted_results[candidate.name] = decrypted_sum
+        # Фильтруем голоса за текущего кандидата
+        candidate_votes = votes.filter(candidate=candidate)
+        total_votes = 0
+        for vote in candidate_votes:
+            try:
+                decrypted_vote = HE.decrypt_vote(vote.encrypted_vote)
+                total_votes += decrypted_vote
+            except Exception as e:
+                messages.error(request, f'Ошибка при дешифровании голоса: {e}')
+        decrypted_results[candidate.name] = total_votes
 
     return render(request, 'voting/results.html', {'election': election, 'total_votes': decrypted_results})
 
@@ -133,6 +151,7 @@ def register(request):
             raw_password = form.cleaned_data.get('password1')
             user = authenticate(username=username, password=raw_password)
             login(request, user)
+            messages.success(request, 'Вы успешно зарегистрировались и вошли в систему.')
             return redirect('voting:home')
     else:
         form = UserCreationForm()
