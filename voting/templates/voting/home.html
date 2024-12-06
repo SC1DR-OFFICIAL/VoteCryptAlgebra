@@ -2,21 +2,28 @@
 
 {% extends 'voting/base.html' %}
 
-{% block title %}Главная страница - Голосования{% endblock %}
+{% block title %}Главная Страница{% endblock %}
 
 {% block content %}
-    <h1>Доступные Голосования</h1>
-    {% if elections %}
+    <h2>Все Голосования</h2>
+    <ul>
         {% for election in elections %}
-            <div class="election">
-                <h2>{{ election.name }}</h2>
+            <li style="margin-bottom: 20px;">
+                <h3>{{ election.name }}</h3>
                 <p>{{ election.description }}</p>
                 <p><strong>Начало:</strong> {{ election.start_date }}</p>
-                <p><strong>Окончание:</strong> {{ election.end_date }}</p>
-                <a href="{% url 'voting:vote' election.id %}" class="vote-button">Проголосовать</a>
-            </div>
+                <p><strong>Завершение:</strong> {{ election.end_date }}</p>
+
+                {% if election.is_active %}
+                    <a href="{% url 'voting:vote' election_id=election.id %}" class="btn btn-primary">Проголосовать</a>
+                {% elif election.has_ended %}
+                    <a href="{% url 'voting:results' election_id=election.id %}" class="btn btn-success">Посмотреть Результаты</a>
+                {% else %}
+                    <span class="badge badge-secondary">Будущее Голосование</span>
+                {% endif %}
+            </li>
+        {% empty %}
+            <li>Нет доступных голосований.</li>
         {% endfor %}
-    {% else %}
-        <p>Нет доступных голосований в данный момент.</p>
-    {% endif %}
+    </ul>
 {% endblock %}

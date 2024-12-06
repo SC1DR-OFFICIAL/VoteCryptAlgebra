@@ -18,8 +18,9 @@ def is_admin(user):
 @login_required
 def home(request):
     """Представление для главной страницы, отображающее список всех выборов."""
-    elections = Election.objects.filter(end_date__gte=timezone.now()).order_by('start_date')
+    elections = Election.objects.all().order_by('-end_date')  # Сортировка по убыванию даты завершения
     return render(request, 'voting/home.html', {'elections': elections})
+
 
 
 @login_required
@@ -116,16 +117,18 @@ def results(request, election_id):
     election = get_object_or_404(Election, id=election_id)
 
     # Проверка, что голосование завершилось
-    if timezone.now() < election.end_date:
+    if not election.has_ended():
         messages.error(request, 'Голосование ещё не завершено.')
         return redirect('voting:home')
 
     # Получение всех зашифрованных голосов
     votes = Vote.objects.filter(election=election)
 
+    # Инициализация модуля гомоморфного шифрования
+    HE = HomomorphicEncryption()
+
     # Создание словаря для хранения количества голосов по каждому кандидату
     decrypted_results = {}
-    HE = HomomorphicEncryption()  # Инициализация внутри функции
     for candidate in election.candidates.all():
         # Фильтруем голоса за текущего кандидата
         candidate_votes = votes.filter(candidate=candidate)

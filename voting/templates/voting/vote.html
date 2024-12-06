@@ -1,15 +1,28 @@
-<!-- voting/templates/voting/vote.html -->
+<!-- voting/templates/voting/results.html -->
 
 {% extends 'voting/base.html' %}
 
-{% block title %}Голосование - {{ election.name }}{% endblock %}
+{% block title %}Результаты Голосования - {{ election.name }}{% endblock %}
 
 {% block content %}
-    <h2>Голосование: {{ election.name }}</h2>
+    <h2>Результаты голосования: {{ election.name }}</h2>
     <p>{{ election.description }}</p>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="logout-button" style="background-color: #28a745;">Проголосовать</button>
-    </form>
+    <table border="1" cellpadding="10">
+        <thead>
+            <tr>
+                <th>Кандидат</th>
+                <th>Количество голосов</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for candidate, votes in total_votes.items %}
+                <tr>
+                    <td>{{ candidate }}</td>
+                    <td>{{ votes }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <a href="{% url 'voting:home' %}">Вернуться на главную страницу</a>
 {% endblock %}

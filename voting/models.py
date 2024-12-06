@@ -2,6 +2,7 @@
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 
 class Election(models.Model):
@@ -12,6 +13,16 @@ class Election(models.Model):
 
     def __str__(self):
         return self.name
+
+    def is_active(self):
+        """Проверяет, активно ли голосование."""
+        now = timezone.now()
+        return self.start_date <= now <= self.end_date
+
+    def has_ended(self):
+        """Проверяет, завершилось ли голосование."""
+        now = timezone.now()
+        return now > self.end_date
 
 
 class Candidate(models.Model):

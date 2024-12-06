@@ -2,14 +2,30 @@
 
 {% extends 'voting/base.html' %}
 
-{% block title %}Результаты - {{ election.name }}{% endblock %}
+{% block title %}Результаты Голосования - {{ election.name }}{% endblock %}
 
 {% block content %}
     <h2>Результаты голосования: {{ election.name }}</h2>
-    <ul>
-        {% for candidate, votes in total_votes.items %}
-            <li>{{ candidate }}: {{ votes }} голосов</li>
-        {% endfor %}
-    </ul>
-    <p><a href="{% url 'voting:home' %}">Вернуться на главную страницу</a></p>
+    <p>{{ election.description }}</p>
+    <p>Начало: {{ election.start_date }}</p>
+    <p>Завершение: {{ election.end_date }}</p>
+
+    <table border="1" cellpadding="10">
+        <thead>
+            <tr>
+                <th>Кандидат</th>
+                <th>Количество голосов</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for candidate, votes in total_votes.items %}
+                <tr>
+                    <td>{{ candidate }}</td>
+                    <td>{{ votes }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <a href="{% url 'voting:home' %}" class="btn btn-secondary">Вернуться на главную страницу</a>
 {% endblock %}
