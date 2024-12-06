@@ -1,12 +1,9 @@
-# voting/views.py
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import login, authenticate
 from django.contrib import messages
 from .models import Election, Candidate, Vote
 from .forms import VoteForm, ElectionForm, CandidateForm
-from .crypto import HomomorphicEncryption
 from django.utils import timezone
 from django.contrib.auth.forms import UserCreationForm  # Импорт формы регистрации
 import logging
@@ -48,21 +45,11 @@ def vote(request, election_id):
         form = VoteForm(request.POST, election=election)
         if form.is_valid():
             candidate = form.cleaned_data['candidate']
-            HE = HomomorphicEncryption()  # Инициализация внутри функции
-            try:
-                encrypted_vote = HE.encrypt_vote(candidate.id)
-                serialized_vote = encrypted_vote.serialize()
-            except Exception as e:
-                logger.error(f'Ошибка при шифровании голоса: {e}')
-                messages.error(request, f'Ошибка при шифровании голоса: {e}')
-                return redirect('voting:vote', election_id=election.id)
-
-            # Сохранение зашифрованного голоса
+            # Сохранение голоса без шифрования
             Vote.objects.create(
                 election=election,
                 voter=request.user,
-                candidate=candidate,
-                encrypted_vote=serialized_vote
+                candidate=candidate
             )
             messages.success(request, 'Ваш голос успешно отдан!')
             return redirect('voting:home')
@@ -129,22 +116,13 @@ def results(request, election_id):
         return redirect('voting:home')
 
     votes = Vote.objects.filter(election=election)
-    HE = HomomorphicEncryption()
 
-    decrypted_results = {}
+    # Подсчёт голосов без дешифрования
+    results = {}
     for candidate in election.candidates.all():
-        candidate_votes = votes.filter(candidate=candidate)
-        total_votes = 0
-        for vote in candidate_votes:
-            try:
-                decrypted_vote = HE.decrypt_vote(vote.encrypted_vote)
-                total_votes += decrypted_vote
-            except Exception as e:
-                logger.error(f'Ошибка при дешифровании голоса для кандидата {candidate.name}: {e}')
-                messages.error(request, f'Ошибка при дешифровании голоса: {e}')
-        decrypted_results[candidate.name] = total_votes
+        results[candidate.name] = votes.filter(candidate=candidate).count()
 
-    return render(request, 'voting/results.html', {'election': election, 'total_votes': decrypted_results})
+    return render(request, 'voting/results.html', {'election': election, 'total_votes': results})
 
 
 def register(request):

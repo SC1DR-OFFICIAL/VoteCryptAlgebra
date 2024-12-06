@@ -38,7 +38,7 @@ class Vote(models.Model):
     election = models.ForeignKey(Election, related_name='votes', on_delete=models.CASCADE)
     voter = models.ForeignKey(User, related_name='votes', on_delete=models.CASCADE)
     candidate = models.ForeignKey(Candidate, related_name='votes', on_delete=models.CASCADE)
-    encrypted_vote = models.BinaryField()  # Хранение сериализованного зашифрованного голоса
 
     def __str__(self):
         return f"{self.voter} voted for {self.candidate} in {self.election}"
+
